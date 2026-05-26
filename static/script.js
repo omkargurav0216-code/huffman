@@ -1,0 +1,1 @@
+console.log("Huffman Encoding App Loaded");
