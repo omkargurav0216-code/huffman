@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Huffman Encoding</title>
+    <meta charset="UTF-8">
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static',
-        filename='style.css') }}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Huffman Encoding Visualizer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
 </head>
 
@@ -16,36 +22,189 @@
 
 <div class="container">
 
-    <h1>
-        Huffman Encoding Compression
-    </h1>
+    <h1>Huffman Encoding Visualizer</h1>
 
-    <form action="/compress" method="POST">
+    <div class="main-layout">
 
-        <textarea
-            name="text"
-            placeholder="Enter text here..."
-            required>{{ text if text else '' }}</textarea>
+        <!-- LEFT PANEL -->
 
-        <button type="submit">
-            Compress
-        </button>
+        <div class="left-panel">
 
-    </form>
+            <!-- INPUT CARD -->
 
-    {% if output %}
+            <div class="input-card">
 
-    <div class="output">
+                <h2>Input Text</h2>
 
-        <h2>Result</h2>
+                <form action="/compress"
+                      method="POST">
 
-        <pre>{{ output }}</pre>
+                    <textarea
+                        name="text"
+                        required
+                        placeholder="Enter text here...">{{ text if text else '' }}</textarea>
+
+                    <button type="submit">
+                        Compress
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- OUTPUT -->
+
+            {% if output %}
+
+            <div class="output">
+
+                <h2>Compression Result</h2>
+
+                <pre>{{ output }}</pre>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT PANEL -->
+
+        <div class="right-panel">
+
+            <h2 class="tree-title">
+                Huffman Tree Visualization
+            </h2>
+
+            {% if tree %}
+
+            <div id="tree"></div>
+
+            {% else %}
+
+            <div class="empty-tree">
+
+                <p>
+                    Huffman Tree will appear here
+                    after compression.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
 
     </div>
 
-    {% endif %}
-
 </div>
 
+{% if tree %}
+
+<script>
+
+const treeData = {{ tree | tojson }};
+
+/* SVG SIZE */
+
+const width = 1100;
+const height = 700;
+
+/* CREATE SVG */
+
+const svg = d3.select("#tree")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+/* MAIN GROUP */
+
+const g = svg.append("g")
+    .attr("transform", "translate(50,50)");
+
+/* CREATE HIERARCHY */
+
+const root = d3.hierarchy(treeData);
+
+/* TOP TO BOTTOM TREE */
+
+const treeLayout = d3.tree()
+    .size([width - 150, height - 150]);
+
+treeLayout(root);
+
+/* LINKS */
+
+g.selectAll(".link")
+    .data(root.links())
+    .enter()
+    .append("line")
+    .attr("x1", d => d.source.x)
+    .attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x)
+    .attr("y2", d => d.target.y)
+    .attr("stroke", "#999")
+    .attr("stroke-width", 2);
+
+/* EDGE LABELS */
+
+g.selectAll(".edge-label")
+    .data(root.links())
+    .enter()
+    .append("text")
+    .attr("x", d => (d.source.x + d.target.x) / 2)
+    .attr("y", d => (d.source.y + d.target.y) / 2 - 8)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("font-weight", "bold")
+    .style("fill", "#444")
+    .text((d) => {
+
+        if (d.target === d.source.children[0])
+            return "0";
+
+        return "1";
+    });
+
+/* NODES */
+
+g.selectAll(".node")
+    .data(root.descendants())
+    .enter()
+    .append("circle")
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("r", 30)
+    .attr("fill", d => d.children ? "#007BFF" : "#28a745")
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 3);
+
+/* NODE TEXT */
+
+g.selectAll(".node-text")
+    .data(root.descendants())
+    .enter()
+    .append("text")
+    .attr("x", d => d.x)
+    .attr("y", d => d.y + 5)
+    .attr("text-anchor", "middle")
+    .style("fill", "white")
+    .style("font-size", "13px")
+    .style("font-weight", "bold")
+    .text(d => d.data.name);
+
+/* TOOLTIP */
+
+g.selectAll(".tooltip-node")
+    .data(root.descendants())
+    .enter()
+    .append("title")
+    .text(d => `Node: ${d.data.name}`);
+
+</script>
+
+{% endif %}
+
 </body>
+
 </html>

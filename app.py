@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import subprocess
+import json
 import os
 
 app = Flask(__name__)
@@ -13,10 +14,10 @@ def compress():
 
     text = request.form['text']
 
-    executable = './huffman.exe'
+    executable = './huffman'
 
-    if os.name != 'nt':
-        executable = './huffman'
+    if os.name == 'nt':
+        executable = './huffman.exe'
 
     result = subprocess.run(
         [executable, text],
@@ -26,9 +27,13 @@ def compress():
 
     output = result.stdout
 
+    with open('tree.json') as f:
+        tree_data = json.load(f)
+
     return render_template(
         'index.html',
         output=output,
+        tree=tree_data,
         text=text
     )
 
