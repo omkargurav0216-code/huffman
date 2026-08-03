@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dining Philosophers Problem Visualization</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Local stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-microchip logo-icon"></i>
+                <div>
+                    <h1>Dining Philosophers</h1>
+                    <p class="subtitle">Operating Systems Concepts Demonstration</p>
+                </div>
+            </div>
+            <div class="header-badge" id="mode-badge">
+                NORMAL MODE
+            </div>
+        </header>
+
+        <!-- Main Content Layout -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Panel: Controls and Status -->
+            <div class="panel controls-status-panel">
+                <div class="panel-section">
+                    <h2><i class="fa-solid fa-sliders"></i> Control Panel</h2>
+                    <div class="control-buttons">
+                        <button id="btn-start" class="btn btn-primary" title="Start Simulation">
+                            <i class="fa-solid fa-play"></i> Start
+                        </button>
+                        <button id="btn-pause" class="btn btn-secondary" title="Pause Simulation">
+                            <i class="fa-solid fa-pause"></i> Pause
+                        </button>
+                        <button id="btn-reset" class="btn btn-danger" title="Reset Simulation">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                    </div>
+                    
+                    <div class="mode-toggles">
+                        <button id="btn-deadlock" class="btn btn-warning-outline" title="Trigger Deadlock Demo">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Deadlock Demo
+                        </button>
+                        <button id="btn-prevention" class="btn btn-success-outline" title="Toggle Deadlock Prevention">
+                            <i class="fa-solid fa-shield-halved"></i> Prevention Mode
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Configuration Section -->
+                <div class="panel-section">
+                    <h2><i class="fa-solid fa-gears"></i> Table Configuration</h2>
+                    <div class="config-controls">
+                        <div class="input-group">
+                            <label for="phi-count-select">Philosophers:</label>
+                            <select id="phi-count-select" class="form-select">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5" selected>5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+                        <button id="btn-apply-count" class="btn btn-secondary" title="Apply Philosopher Count">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Banner -->
+                <div class="panel-section">
+                    <h2><i class="fa-solid fa-circle-info"></i> System Status</h2>
+                    <div class="status-banner status-inactive" id="status-display">
+                        <i class="fa-solid fa-circle-dot status-pulse"></i>
+                        <span id="status-text">Simulation Stopped</span>
+                    </div>
+                </div>
+
+                <!-- Statistics Panel -->
+                <div class="panel-section">
+                    <h2><i class="fa-solid fa-chart-simple"></i> Meal Statistics</h2>
+                    <div class="stats-container">
+                        <div class="total-meals-box">
+                            <span class="total-label">Total Meals Served</span>
+                            <span class="total-count" id="total-meals-count">0</span>
+                        </div>
+                        <div class="philosopher-bars" id="philosopher-bars">
+                            <!-- Dynamically generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Dining Table Visualization -->
+            <div class="panel visualization-panel">
+                <h2><i class="fa-solid fa-ring"></i> Circular Dining Table</h2>
+                <div class="table-container">
+                    <div class="dining-area" id="dining-area">
+                        <!-- Dining Table Center Element -->
+                        <div class="dining-table">
+                            <div class="table-label">
+                                <i class="fa-solid fa-plate-wheat table-center-icon"></i>
+                                <span>RICE BOWL</span>
+                            </div>
+                        </div>
+
+                        <!-- Philosophers and Forks will be rendered dynamically by JavaScript -->
+                    </div>
+                </div>
+                <!-- State Color Key Legend -->
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color state-thinking"></span>Thinking</div>
+                    <div class="legend-item"><span class="legend-color state-hungry"></span>Hungry</div>
+                    <div class="legend-item"><span class="legend-color state-eating"></span>Eating</div>
+                    <div class="legend-item"><span class="legend-color state-deadlock"></span>Deadlock</div>
+                    <div class="legend-item"><span class="legend-color state-bowl"></span>Bowl</div>
+                    <div class="legend-item"><span class="legend-color fork-available"></span>Fork Free</div>
+                    <div class="legend-item"><span class="legend-color fork-held"></span>Fork Held</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Academic & OS Concepts Info Panel -->
+        <section class="panel educational-panel">
+            <h2><i class="fa-solid fa-graduation-cap"></i> Operating Systems Concepts</h2>
+            <div class="edu-grid">
+                <div class="edu-card">
+                    <h3><i class="fa-solid fa-rotate"></i> Mutual Exclusion</h3>
+                    <p>Forks act as shared resources. Only one philosopher can hold a fork at any given time, implemented using <code>threading.Lock</code> (Mutex).</p>
+                </div>
+                <div class="edu-card">
+                    <h3><i class="fa-solid fa-skull"></i> Deadlock</h3>
+                    <p>Occurs when all 5 philosophers acquire their left fork and wait indefinitely for the right fork, creating a circular wait condition.</p>
+                </div>
+                <div class="edu-card">
+                    <h3><i class="fa-solid fa-shield-halved"></i> Prevention</h3>
+                    <p>Using a Semaphore with <code>MAX_ALLOWED = 4</code>. Limiting the number of concurrent philosophers attempting to eat breaks the circular wait condition.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Local script -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
